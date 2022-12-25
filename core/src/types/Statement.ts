@@ -7,6 +7,6 @@ export type Statement = {
     Principal: Record<string, string[]|string> | string,
     Resource: string[] | string,
     Action: string[] | string,
-    Effect?: string
+    Effect: string
   };
-  
+
