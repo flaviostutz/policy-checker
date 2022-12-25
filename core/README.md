@@ -6,8 +6,6 @@ This is an authorization evaluator library based on the AWS IAM policy style.
 
 - `npm install --save @policyval/core`
 
-- Create DynamoDB tables
-
 ```ts
 import { compilePolicies } from '@policyval/core';
 
@@ -60,23 +58,23 @@ const cpolicyval = compilePolicies([pol1, pol2]);
 
 //returns false because we are in 2022 and the policy that would give this access is expired
 const allowed1 = cpolicyval.evaluate({
-    Principal: { 'jwt': 'flaviostutz' },
+    Principal: { jwt: 'flaviostutz' },
     Action: 'todo:update',
     Resource: { Urn: 'todo:abc123' }
 });
 
 //returns true because richard has plan 'basic-pro'
 const allowed2 = cpolicyval.evaluate({
-    Principal: { 'jwt': 'richard', Tags: [ { 'plan': 'basic-pro' } ] },
+    Principal: { jwt: 'richard', Tags: [ { plan: 'basic-pro' } ] },
     Action: 'todo:view',
     Resource: 'todo:axy576'
 });
 
 //returns true because charles is the 'owner' of the resource
 const allowed3 = cpolicyval.evaluate({
-    Principal: { 'jwt': 'charles', Tags: { 'userid': 'charles' } },
+    Principal: { jwt: 'charles', Tags: { userid: 'charles' } },
     Action: 'todo:delete',
-    Resource: { Urn: 'todo:axy123', Tags: { 'owner': 'charles' } }
+    Resource: { Urn: 'todo:axy123', Tags: { owner: 'charles' } }
 });
 
 ```
@@ -98,7 +96,7 @@ const policy = {
     Statement: [
         {
             Effect: 'Allow',
-            Principal: { 'jwt': [ 'flaviostutz' ] },
+            Principal: { jwt: [ 'flaviostutz' ] },
             Action: [ 'todo:update', 'todo:delete' ],
             Resource: [ 'todo/abc123', 'todo/xyz123' ]
         }
@@ -122,7 +120,7 @@ const policy = {
 
 ```ts
 {
-    Principal: { 'jwt': 'richard', Tags: [ { 'plan': 'basic-pro' } ] },
+    Principal: { jwt: 'richard', Tags: [ { plan: 'basic-pro' } ] },
     Action: 'todo:view',
     Resource: 'todo:axy576'
 }
