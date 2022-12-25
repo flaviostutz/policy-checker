@@ -21,7 +21,7 @@ const pol1 = {
             Effect: 'Allow',
             Principal: '*',
             Action: 'todo:view',
-            Resource: 'todo/*',
+            Resource: 'todo:*',
             Condition: {
                 'StringEquals': { 
                     'int:ResourceTag/viewer': [ 'admin', 'anyone' ],
@@ -29,13 +29,14 @@ const pol1 = {
                 }
             }
         }
+    ]
 }
 
 const cpolicyval = compilePolicies([pol1, pol2]);
 const allowed = cpolicyval.evaluate({
     Principal: { 'jwt': 'charles', Tags: { 'plan': 'basic-pro' } },
     Action: 'todo:view',
-    Resource: { Urn: 'todo/axy576', Tags: { 'viewer': 'anyone' } }
+    Resource: { Urn: 'todo:axy576', Tags: { 'viewer': 'anyone' } }
 });
 
 ```
