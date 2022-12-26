@@ -2,6 +2,7 @@ import { RequestContext } from './types/RequestContext';
 import { PrincipalStatement } from './types/PrincipalStatement';
 import { Result } from './types/Result';
 import { evaluateConditions } from './condition';
+import { resolveVar } from './conditions/resolver';
 
 const evaluate = (
   context: RequestContext,
@@ -54,10 +55,13 @@ const checkEffect = (
 
   for (let i = 0; i < pstt.Resource.length; i += 1) {
     const princResource = pstt.Resource[i];
-    if (matches(ctxResource, princResource)) {
+    if (matches(ctxResource, princResource, context)) {
       for (let j = 0; j < pstt.Action.length; j += 1) {
         const princAction = pstt.Action[j];
-        if (matches(ctxAction, princAction) && evaluateConditions(context, pstt.Condition)) {
+        if (
+          matches(ctxAction, princAction, context) &&
+          evaluateConditions(context, pstt.Condition)
+        ) {
           if (pstt.Effect === 'Allow') {
             allowed = Result.ALLOW;
           } else {
@@ -138,10 +142,50 @@ const getPrincipal = (context: RequestContext): string => {
   return principal;
 };
 
-const matches = (value: string, expression: string): boolean => {
-  const regex = expression.replace('.', '\\.').replace('*', '.*').replace('?', '.{0,1}');
+const matches = (ctxValue: string, polValue: string, context: RequestContext): boolean => {
+  let polValue2 = polValue;
+
+  // resolve var expressions
+  // ex: something-${ctx:myvar, 'mydefault1'}-blah - this will find "${ctx:myvar, 'mydefault1'}""
+  const regVars = new RegExp(/\${[a-zA-Z][a-zA-Z0-9-_:\\/]*[^}]*}/gm);
+  let varResults;
+  while ((varResults = regVars.exec(polValue)) !== null) {
+    const vr = varResults[0];
+    // resolve "variable key" and "default value" inside var expression
+    const regValue = /\${([a-zA-Z][a-zA-Z0-9-_:\\/]*)[, ]*[']*([^'.]*)[']*}/gm;
+    let variableName = '';
+    // don't use '' to mark no default because user can use empty as actual desired default
+    let defaultValue = '_ANYRANDOMDEFAULT_';
+
+    let rvalue;
+    while ((rvalue = regValue.exec(vr)) !== null) {
+      if (rvalue.length > 1) {
+        variableName = rvalue[1];
+      }
+      if (rvalue.length > 2) {
+        defaultValue = rvalue[2];
+      }
+    }
+
+    if (!variableName) {
+      return false;
+    }
+
+    let varValue = resolveVar(context, variableName);
+    if (varValue == null) {
+      if (defaultValue === '_ANYRANDOMDEFAULT_') {
+        return false;
+      }
+      varValue = defaultValue;
+    }
+
+    polValue2 = polValue2.replace(vr, varValue);
+  }
+
+  // test if regex matches for wildcards in policy values
+  const regex = polValue2.replace('.', '\\.').replace('*', '.*').replace('?', '.{0,1}');
   const re = new RegExp(regex);
-  return re.test(value);
+  return re.test(ctxValue);
 };
 
-export { evaluate };
+export { evaluate, matches };

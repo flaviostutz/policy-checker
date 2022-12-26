@@ -1,8 +1,122 @@
 import { compilePolicies } from './compile';
+import { matches } from './evaluate';
 import { apolicy1, apolicy2 } from './__mocks__/arrayPolicies';
 import { cstringpolicy1, cstringpolicy2, cstringpolicy3 } from './__mocks__/conditionPolicies';
 import { spolicy1 } from './__mocks__/simplePolicies';
+import { vpolicy1 } from './__mocks__/varPolicies';
 import { wpolicy1, wpolicy2, wpolicy3 } from './__mocks__/wildcardPolicies';
+
+describe('when using var replacement', () => {
+  it('should match replaced element', async () => {
+    // eslint-disable-next-line no-template-curly-in-string
+    const result = matches('anything-value1-anything', 'anything-${ctx:var1}-anything', {
+      Principal: 'mypal1',
+      Action: 'myaction1',
+      Resource: 'myresource1/value1',
+      Vars: {
+        var1: 'value1',
+      },
+    });
+    expect(result).toBeTruthy();
+  });
+  it('should match replaced element (ResourceTag)', async () => {
+    // eslint-disable-next-line no-template-curly-in-string
+    const result = matches('anything-tagValue1', 'anything-${ctx:ResourceTag/tag1}', {
+      Principal: 'mypal1',
+      Action: 'myaction1',
+      Resource: {
+        Urn: 'myresource1/value1',
+        Tags: {
+          tag1: 'tagValue1',
+        },
+      },
+      Vars: {
+        var1: 'value1',
+      },
+    });
+    expect(result).toBeTruthy();
+  });
+  it('should match replaced multiple elements with ResourceTag', async () => {
+    const result = matches(
+      'anything-value1-anythingtagValue1',
+      // eslint-disable-next-line no-template-curly-in-string
+      "anything-${ctx:var1}-anything${ctx:ResourceTag/tag1, 'bbbb'}",
+      {
+        Principal: 'mypal1',
+        Action: 'myaction1',
+        Resource: {
+          Urn: 'myresource1/value1',
+          Tags: {
+            tag1: 'tagValue1',
+          },
+        },
+        Vars: {
+          var1: 'value1',
+        },
+      },
+    );
+    expect(result).toBeTruthy();
+  });
+  it('should match replaced element with default', async () => {
+    // eslint-disable-next-line no-template-curly-in-string
+    const result = matches('anything-mydefault1', "anything-${ctx:var1, 'mydefault1'}", {
+      Principal: 'mypal1',
+      Action: 'myaction1',
+      Resource: 'myresource1/value1',
+    });
+    expect(result).toBeTruthy();
+  });
+});
+
+describe('when using var replacement in resource name', () => {
+  it('should success if resource name has tag value', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [vpolicy1],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: 'mypal1',
+      Action: 'myaction1',
+      Resource: 'myresource1/value1',
+      Vars: {
+        var1: 'value1',
+      },
+    });
+    expect(allowed).toBeTruthy();
+  });
+
+  it('should success if resource name with default value when ctx var not found', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [vpolicy1],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: 'mypal1',
+      Action: 'myaction1',
+      Resource: 'myresource1/mydefault1',
+    });
+    expect(allowed).toBeTruthy();
+  });
+
+  it('should fail if resource name different from var', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [vpolicy1],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: 'mypal1',
+      Action: 'myaction1',
+      Resource: 'myresource1/anything',
+      Vars: {
+        var1: 'value2',
+      },
+    });
+    expect(allowed).toBeFalsy();
+  });
+});
 
 describe('when using Condition elements', () => {
   it('should allow if Null condition matches', async () => {
@@ -304,7 +418,7 @@ describe('when using wildcard elements', () => {
     ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
-      Action: 'myaction2:something:test',
+      Action: 'myaction2:A:test',
       Resource: 'myresource2',
     });
     expect(allowed).toBeTruthy();
@@ -332,7 +446,7 @@ describe('when using wildcard elements', () => {
     ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
-      Action: 'myaction2:something:test',
+      Action: 'myaction2:B:test',
       Resource: 'myresource1/something/test',
     });
     expect(allowed).toBeTruthy();

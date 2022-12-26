@@ -17,7 +17,7 @@ const wpolicy2: Statement = {
 const wpolicy3: Statement = {
   Effect: 'Allow',
   Principal: 'mypal1',
-  Action: ['myaction1', 'myaction2:*:test'],
+  Action: ['myaction1', 'myaction2:?:test'],
   Resource: ['myresource1/*/test', 'myresource2'],
 };
 
