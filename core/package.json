@@ -1,6 +1,6 @@
 {
   "name": "@policyval/core",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "Javascript library for permission evaluation based on AWS IAM policy style",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
