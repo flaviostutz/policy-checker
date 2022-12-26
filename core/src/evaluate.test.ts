@@ -1,7 +1,159 @@
 import { compilePolicies } from './compile';
 import { apolicy1, apolicy2 } from './__mocks__/arrayPolicies';
+import { cstringpolicy1, cstringpolicy2, cstringpolicy3 } from './__mocks__/conditionPolicies';
 import { spolicy1 } from './__mocks__/simplePolicies';
 import { wpolicy1, wpolicy2, wpolicy3 } from './__mocks__/wildcardPolicies';
+
+describe('when using Condition elements', () => {
+  it('should allow if string conditions matches', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [cstringpolicy1],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+      },
+      Action: 'myaction1',
+      Resource: 'myresource1',
+      Vars: {
+        test1: 'value1',
+        test2: 'anything',
+        test3: 'VALUE1',
+        test4: 'ANYTHING',
+        test5: 'value1ANYTHINGvalue2',
+        test6: 'ANYTHING',
+      },
+    });
+    expect(allowed).toBeTruthy();
+
+    // testing OR condition in StringEquals
+    const allowed2 = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+      },
+      Action: 'myaction1',
+      Resource: 'myresource1',
+      Vars: {
+        test1: 'value2',
+        test2: 'anything',
+        test3: 'VALUE1',
+        test4: 'ANYTHING',
+        test5: 'value1value2',
+        test6: '',
+      },
+    });
+    expect(allowed2).toBeTruthy();
+  });
+
+  it('should deny if missing var, even if for testing for different value', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [cstringpolicy1],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+      },
+      Action: 'myaction1',
+      Resource: 'myresource1',
+      Vars: {
+        test1: 'value1',
+        // test2: 'anything',
+        test3: 'VALUE1',
+        test4: 'ANYTHING',
+        test5: 'value1ANYTHINGvalue2',
+      },
+    });
+    expect(allowed).toBeFalsy();
+  });
+
+  it('should allow on missing var if using StringEqualsIfExists', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [cstringpolicy1],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+      },
+      Action: 'myaction1',
+      Resource: 'myresource1',
+      Vars: {
+        test1: 'value1',
+        test2: 'anything',
+        test3: 'VALUE1',
+        test4: 'ANYTHING',
+        test5: 'value1ANYTHINGvalue2',
+        test6: 'ANYTHING',
+        test7: 'value1',
+      },
+    });
+    expect(allowed).toBeTruthy();
+
+    // now without test7 var
+    const allowed2 = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+      },
+      Action: 'myaction1',
+      Resource: 'myresource1',
+      Vars: {
+        test1: 'value1',
+        test2: 'anything',
+        test3: 'VALUE1',
+        test4: 'ANYTHING',
+        test5: 'value1ANYTHINGvalue2',
+        test6: 'ANYTHING',
+        // test7: 'value1',
+      },
+    });
+    expect(allowed2).toBeTruthy();
+  });
+
+  it('should allow if ResourceTag matches', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [cstringpolicy2],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+      },
+      Action: 'myaction1',
+      Resource: {
+        Urn: 'myresource1',
+        Tags: {
+          tag1: 'value1',
+        },
+      },
+    });
+    expect(allowed).toBeTruthy();
+  });
+
+  it('should allow if PrincipalTag matches', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [cstringpolicy3],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+        Tags: {
+          tag1: 'value1',
+        },
+      },
+      Action: 'myaction1',
+      Resource: 'myresource1',
+    });
+    expect(allowed).toBeTruthy();
+  });
+});
 
 describe('when using wildcard elements', () => {
   it('should fail if context Principal contains wildcard', async () => {

@@ -1,7 +1,35 @@
 import { compilePolicies } from './compile';
 import { apolicy1, apolicy2 } from './__mocks__/arrayPolicies';
+import { cstringpolicy1 } from './__mocks__/conditionPolicies';
 import { spolicy1, spolicy2 } from './__mocks__/simplePolicies';
 import { wpolicy1 } from './__mocks__/wildcardPolicies';
+
+describe('when using condition element', () => {
+  it('should compile if condition well formed', async () => {
+    compilePolicies([
+      {
+        Statement: [cstringpolicy1],
+      },
+    ]);
+  });
+
+  it('should fail if using wildcard in Principal name', async () => {
+    expect(() => {
+      compilePolicies([
+        {
+          Statement: [
+            {
+              Effect: 'Allow',
+              Principal: 'my*pal',
+              Action: 'mywrite',
+              Resource: 'myresource',
+            },
+          ],
+        },
+      ]);
+    }).toThrow();
+  });
+});
 
 describe('when using wildcard elements', () => {
   it('should compile when using valid wildcard elements', async () => {

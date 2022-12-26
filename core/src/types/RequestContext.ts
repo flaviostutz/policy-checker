@@ -1,11 +1,11 @@
 /**
  * Context to be evaluated
  */
-export type Context = {
+export type RequestContext = {
   Principal:
     | {
         Urn: Record<string, string[] | string> | string;
-        Tags?: string[];
+        Tags?: Record<string, string>;
       }
     | string;
   Resource:
@@ -15,4 +15,5 @@ export type Context = {
       }
     | string;
   Action: string;
+  Vars?: Record<string, string>;
 };

@@ -1,9 +1,10 @@
 import { evaluate } from './evaluate';
-import { Context } from './types/Context';
+import { RequestContext } from './types/RequestContext';
 import { PolicyDocument } from './types/PolicyDocument';
 import { PolicyEvaluator } from './types/PolicyEvaluator';
 import { PrincipalStatement } from './types/PrincipalStatement';
 import { Statement } from './types/Statement';
+import { conditionExists } from './condition';
 
 /**
  * Compile policy documents and prepare for evaluation
@@ -65,7 +66,7 @@ const compilePolicies = (policies: PolicyDocument[]): PolicyEvaluator => {
   });
 
   return {
-    evaluate: (context: Context): boolean => {
+    evaluate: (context: RequestContext): boolean => {
       return evaluate(context, principalStatements);
     },
   };
@@ -97,6 +98,9 @@ const principalStatement = (stt: Statement): PrincipalStatement => {
     throw new Error("'Effect' must be either 'Allow' or 'Deny'");
   }
 
+  // Condition attribute
+  validateCondition(stt.Condition);
+
   // normalize to always be array
   let action = [];
   if (typeof stt.Action === 'string') {
@@ -113,10 +117,11 @@ const principalStatement = (stt: Statement): PrincipalStatement => {
   }
 
   const pss: PrincipalStatement = {
+    Id: stt.Id,
+    Effect: stt.Effect,
     Action: action,
     Resource: resource,
-    Effect: stt.Effect,
-    Id: stt.Id,
+    Condition: stt.Condition,
   };
   return pss;
 };
@@ -134,6 +139,36 @@ const validateNonEmpty = (value: any, name: string): void => {
         throw new Error(`'${name}' must be an array with non empty elements`);
       }
     });
+  }
+};
+
+const validateCondition = (condition: any): void => {
+  if (!condition) {
+    return;
+  }
+  if (typeof condition !== 'object') {
+    throw new Error("'Condition' should be an object");
+  }
+  for (const operator in condition) {
+    if (!Object.prototype.hasOwnProperty.call(condition, operator)) {
+      continue;
+    }
+    if (!conditionExists(operator)) {
+      throw new Error(`Condition operator '${operator}' is not supported`);
+    }
+    const condAttr = condition[operator];
+    if (typeof condAttr !== 'object') {
+      throw new Error("'Condition' attribute should be an object");
+    }
+    for (const cattr in condAttr) {
+      if (!Object.prototype.hasOwnProperty.call(condAttr, cattr)) {
+        continue;
+      }
+      const condAttr2 = condAttr[cattr];
+      if (typeof condAttr2 !== 'string' && !Array.isArray(condAttr2)) {
+        throw new Error("'Condition' value should be a string or an array of strings");
+      }
+    }
   }
 };
 

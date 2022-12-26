@@ -80,7 +80,7 @@ const allowed3 = cpolicyval.evaluate({
 
 ## Reference
 
-Rule evaluation:
+### Rule evaluation
 
 - Policies related to principal, action and resource are selected
 - Each policy is evaluated
@@ -102,6 +102,12 @@ const policy = {
   ],
 };
 ```
+
+### Conditions
+
+We support all the condition operators listed at https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_condition_operators.html, including "IfExists"
+
+Variable resolutions are supported also as "ctx:ResourceTag/[tagName]", for resource tag resolutions, "ctx:PrincipalTag/[tagName]", for principal tag resolutions, "ctx:CurrentTime" and "ctx:EpochTime" (note that we changed from "aws" to "ctx").
 
 ### Functions
 

@@ -1,10 +1,13 @@
-import { Context } from './types/Context';
+import { RequestContext } from './types/RequestContext';
 import { PrincipalStatement } from './types/PrincipalStatement';
 import { Result } from './types/Result';
+import { evaluateConditions } from './condition';
 
-const evaluate = (context: Context, statements: Map<string, PrincipalStatement[]>): boolean => {
+const evaluate = (
+  context: RequestContext,
+  statements: Map<string, PrincipalStatement[]>,
+): boolean => {
   const { ctxAction, ctxResource } = getContextElements(context);
-
   const principal = getPrincipal(context);
 
   let allowed = false;
@@ -13,11 +16,11 @@ const evaluate = (context: Context, statements: Map<string, PrincipalStatement[]
   const psttP = statements.get(principal);
   if (psttP) {
     for (let i = 0; i < psttP.length; i += 1) {
-      const allowedP = checkAllowed(ctxResource, ctxAction, psttP[i]);
-      if (allowedP === Result.DENY) {
+      const effectP = checkEffect(context, ctxResource, ctxAction, psttP[i]);
+      if (effectP === Result.DENY) {
         return false;
       }
-      if (allowedP === Result.ALLOW) {
+      if (effectP === Result.ALLOW) {
         allowed = true;
       }
     }
@@ -27,11 +30,11 @@ const evaluate = (context: Context, statements: Map<string, PrincipalStatement[]
   const psttW = statements.get('*');
   if (psttW) {
     for (let i = 0; i < psttW.length; i += 1) {
-      const allowedW = checkAllowed(ctxResource, ctxAction, psttW[i]);
-      if (allowedW === Result.DENY) {
+      const effectW = checkEffect(context, ctxResource, ctxAction, psttW[i]);
+      if (effectW === Result.DENY) {
         return false;
       }
-      if (allowedW === Result.ALLOW) {
+      if (effectW === Result.ALLOW) {
         allowed = true;
       }
     }
@@ -41,7 +44,12 @@ const evaluate = (context: Context, statements: Map<string, PrincipalStatement[]
   return allowed;
 };
 
-const checkAllowed = (ctxResource: string, ctxAction: string, pstt: PrincipalStatement): Result => {
+const checkEffect = (
+  context: RequestContext,
+  ctxResource: string,
+  ctxAction: string,
+  pstt: PrincipalStatement,
+): Result => {
   let allowed = Result.NONE;
 
   for (let i = 0; i < pstt.Resource.length; i += 1) {
@@ -49,7 +57,7 @@ const checkAllowed = (ctxResource: string, ctxAction: string, pstt: PrincipalSta
     if (matches(ctxResource, princResource)) {
       for (let j = 0; j < pstt.Action.length; j += 1) {
         const princAction = pstt.Action[j];
-        if (matches(ctxAction, princAction)) {
+        if (matches(ctxAction, princAction) && evaluateConditions(context, pstt.Condition)) {
           if (pstt.Effect === 'Allow') {
             allowed = Result.ALLOW;
           } else {
@@ -63,7 +71,9 @@ const checkAllowed = (ctxResource: string, ctxAction: string, pstt: PrincipalSta
   return allowed;
 };
 
-const getContextElements = (context: Context): { ctxAction: string; ctxResource: string } => {
+const getContextElements = (
+  context: RequestContext,
+): { ctxAction: string; ctxResource: string } => {
   // validate Action
   if (typeof context.Action !== 'string' || !context.Action) {
     throw new Error("'Action' must be a non-empty string");
@@ -93,7 +103,7 @@ const getContextElements = (context: Context): { ctxAction: string; ctxResource:
   return { ctxAction: context.Action, ctxResource };
 };
 
-const getPrincipal = (context: Context): string => {
+const getPrincipal = (context: RequestContext): string => {
   // validate Principal
   let principal: string = '';
   if (!context.Principal) {
