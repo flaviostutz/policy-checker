@@ -5,6 +5,48 @@ import { spolicy1 } from './__mocks__/simplePolicies';
 import { wpolicy1, wpolicy2, wpolicy3 } from './__mocks__/wildcardPolicies';
 
 describe('when using Condition elements', () => {
+  it('should allow if Null condition matches', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [{
+          Action: 'myaction1',
+          Effect: 'Allow',
+          Principal: 'mypal1',
+          Resource: 'myresource1',
+          Condition: {
+            Null: {
+              'ctx:test1': 'true',
+              'ctx:test2': 'false',
+            },
+          },
+        }],
+      },
+    ]);
+
+    const allowed = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+      },
+      Action: 'myaction1',
+      Resource: 'myresource1',
+      Vars: {
+        test2: 'value2',
+      },
+    });
+    expect(allowed).toBeTruthy();
+
+    const allowed2 = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+      },
+      Action: 'myaction1',
+      Resource: 'myresource1',
+      Vars: {
+        test1: 'value2',
+      },
+    });
+    expect(allowed2).toBeFalsy();
+  });
   it('should allow if string conditions matches', async () => {
     const cp = compilePolicies([
       {

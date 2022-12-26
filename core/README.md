@@ -109,6 +109,14 @@ We support all the condition operators listed at https://docs.aws.amazon.com/IAM
 
 Variable resolutions are supported also as "ctx:ResourceTag/[tagName]", for resource tag resolutions, "ctx:PrincipalTag/[tagName]", for principal tag resolutions, "ctx:CurrentTime" and "ctx:EpochTime" (note that we changed from "aws" to "ctx").
 
+Resource variable substitutions is supported also, for example
+
+```ts
+{
+  Resource: "tasks/${ctx:PrincipalTag/area, 'all'}/*"
+}
+```
+
 ### Functions
 
 - **core.compilePolicies(policies[])**

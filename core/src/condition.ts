@@ -25,12 +25,22 @@ evaluators.set(StringNotEqualsIgnoreCase.name(), StringNotEqualsIgnoreCase);
 evaluators.set(StringLike.name(), StringLike);
 evaluators.set(StringNotLike.name(), StringNotLike);
 
+// eslint-disable-next-line complexity
 const evaluateConditions = (
   context: RequestContext,
   condition?: Record<string, ConditionInput>,
 ): boolean => {
   for (const opn in condition) {
     if (!Object.prototype.hasOwnProperty.call(condition, opn)) {
+      continue;
+    }
+
+    // special operator
+    if (opn === 'Null') {
+      const ok = evaluateNullOperator(context, condition[opn]);
+      if (!ok) {
+        return false;
+      }
       continue;
     }
 
@@ -91,7 +101,30 @@ const evaluateConditions = (
   return true;
 };
 
+const evaluateNullOperator = (context:RequestContext, input:ConditionInput):boolean => {
+  for (const key in input) {
+    if (!Object.prototype.hasOwnProperty.call(input, key)) {
+      continue;
+    }
+    const varValue = resolveVar(context, key);
+    const value = input[key];
+    let ok = false;
+    if (varValue === null) {
+      ok = (value === 'true');
+    } else {
+      ok = (value === 'false');
+    }
+    if (!ok) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const conditionExists = (name: string): boolean => {
+  if (name === 'Null') {
+    return true;
+  }
   let cname = name;
   if (name.endsWith('IfExists')) {
     cname = name.substring(0, name.indexOf('IfExists'));
