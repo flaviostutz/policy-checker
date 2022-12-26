@@ -121,7 +121,7 @@ const principalStatement = (stt: Statement): PrincipalStatement => {
   return pss;
 };
 
-const validateNonEmpty = (value: any, name: string):void => {
+const validateNonEmpty = (value: any, name: string): void => {
   if (!value) {
     throw new Error(`'${name}' must be defined and a non empty`);
   }

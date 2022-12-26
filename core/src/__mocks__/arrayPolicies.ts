@@ -1,6 +1,6 @@
 import { Statement } from '../types/Statement';
 
-const apolicy1:Statement = {
+const apolicy1: Statement = {
   Effect: 'Allow',
   Principal: {
     jwt: ['mypal1', 'mypal2'],
@@ -9,7 +9,7 @@ const apolicy1:Statement = {
   Resource: ['myresource1', 'myresource2'],
 };
 
-const apolicy2:Statement = {
+const apolicy2: Statement = {
   Effect: 'Allow',
   Principal: {
     jwt: 'mypal2',

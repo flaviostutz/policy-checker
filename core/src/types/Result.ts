@@ -1,5 +1,5 @@
 export enum Result {
-    ALLOW,
-    DENY,
-    NONE
+  ALLOW,
+  DENY,
+  NONE,
 }

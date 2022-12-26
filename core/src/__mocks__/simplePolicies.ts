@@ -1,13 +1,13 @@
 import { Statement } from '../types/Statement';
 
-const spolicy1:Statement = {
+const spolicy1: Statement = {
   Effect: 'Allow',
   Principal: 'mypal',
   Action: 'mywrite',
   Resource: 'myresource',
 };
 
-const spolicy2:Statement = {
+const spolicy2: Statement = {
   Effect: 'Allow',
   Principal: 'mypal2',
   Action: 'mywrite2',

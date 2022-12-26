@@ -3,10 +3,9 @@
  */
 
 export type Statement = {
-    Id?: string,
-    Principal: Record<string, string[]|string> | string,
-    Resource: string[] | string,
-    Action: string[] | string,
-    Effect: string
-  };
-
+  Id?: string;
+  Principal: Record<string, string[] | string> | string;
+  Resource: string[] | string;
+  Action: string[] | string;
+  Effect: string;
+};

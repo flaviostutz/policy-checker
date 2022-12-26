@@ -4,11 +4,12 @@ import { spolicy1 } from './__mocks__/simplePolicies';
 import { wpolicy1, wpolicy2, wpolicy3 } from './__mocks__/wildcardPolicies';
 
 describe('when using wildcard elements', () => {
-
   it('should fail if context Principal contains wildcard', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -22,9 +23,11 @@ describe('when using wildcard elements', () => {
   });
 
   it('should fail if context Action contains wildcard', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -38,9 +41,11 @@ describe('when using wildcard elements', () => {
   });
 
   it('should fail if context Resource contains wildcard', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -54,9 +59,11 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Allow when wildcard policy matches Action and Resource', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy1],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
       Action: 'myaction1:anything',
@@ -66,9 +73,11 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Allow when wildcard policy matches Action', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy2],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy2],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
       Action: 'myaction1:anything',
@@ -78,9 +87,11 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Allow when wildcard policy matches Resource', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy2],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy2],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
       Action: 'myaction2',
@@ -90,9 +101,11 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Allow when wildcard in the middle of Action', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy3],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy3],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
       Action: 'myaction2:something:test',
@@ -102,9 +115,11 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Allow when wildcard in the middle of Resource', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy3],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy3],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
       Action: 'myaction1',
@@ -114,9 +129,11 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Allow when wildcard in the middle of both Action and Resource', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy3],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy3],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
       Action: 'myaction2:something:test',
@@ -126,9 +143,11 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Allow when wildcard with multiple policies', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy1, wpolicy2, wpolicy3],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [wpolicy1, wpolicy2, wpolicy3],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
       Action: 'myaction2:something:test',
@@ -138,14 +157,21 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Deny when Principal has wildcard Deny for everything', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy1, wpolicy2, wpolicy3, {
-        Effect: 'Deny',
-        Principal: '*',
-        Action: ['*', 'myaction2'],
-        Resource: ['*', 'myresource2/*'],
-      }],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [
+          wpolicy1,
+          wpolicy2,
+          wpolicy3,
+          {
+            Effect: 'Deny',
+            Principal: '*',
+            Action: ['*', 'myaction2'],
+            Resource: ['*', 'myresource2/*'],
+          },
+        ],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal1',
       Action: 'myaction2:something:test',
@@ -155,14 +181,19 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Deny when Principal has wildcard Deny for specific Action even if part of the wildcard match for an Allow', async () => {
-    const cp = compilePolicies([{
-      Statement: [wpolicy1, {
-        Effect: 'Deny',
-        Principal: '*',
-        Action: 'myaction2:denied',
-        Resource: '*',
-      }],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [
+          wpolicy1,
+          {
+            Effect: 'Deny',
+            Principal: '*',
+            Action: 'myaction2:denied',
+            Resource: '*',
+          },
+        ],
+      },
+    ]);
 
     const allowed1 = cp.evaluate({
       Principal: 'mypal1',
@@ -180,14 +211,18 @@ describe('when using wildcard elements', () => {
   });
 
   it('should Allow when Principal wildcard Allow for everything in an Resource', async () => {
-    const cp = compilePolicies([{
-      Statement: [{
-        Effect: 'Allow',
-        Principal: '*',
-        Action: '*',
-        Resource: 'mypublicresource',
-      }],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [
+          {
+            Effect: 'Allow',
+            Principal: '*',
+            Action: '*',
+            Resource: 'mypublicresource',
+          },
+        ],
+      },
+    ]);
 
     const allowed1 = cp.evaluate({
       Principal: 'anyprincipal',
@@ -196,15 +231,15 @@ describe('when using wildcard elements', () => {
     });
     expect(allowed1).toBeTruthy();
   });
-
 });
 
 describe('when using array elements', () => {
-
   it('should fail if context with invalid Principal', async () => {
-    const cp = compilePolicies([{
-      Statement: [spolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -218,9 +253,11 @@ describe('when using array elements', () => {
   });
 
   it('should fail if context with invalid Principal 2', async () => {
-    const cp = compilePolicies([{
-      Statement: [spolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -235,9 +272,11 @@ describe('when using array elements', () => {
   });
 
   it('should fail if context with invalid Action', async () => {
-    const cp = compilePolicies([{
-      Statement: [spolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -250,9 +289,11 @@ describe('when using array elements', () => {
   });
 
   it('should fail if context with invalid Resource', async () => {
-    const cp = compilePolicies([{
-      Statement: [spolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -265,9 +306,11 @@ describe('when using array elements', () => {
   });
 
   it('should Allow when policy matches context', async () => {
-    const cp = compilePolicies([{
-      Statement: [apolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [apolicy1],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: {
         Urn: { jwt: 'mypal1' },
@@ -279,9 +322,11 @@ describe('when using array elements', () => {
   });
 
   it('should Allow when policy matches context 2', async () => {
-    const cp = compilePolicies([{
-      Statement: [apolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [apolicy1],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: {
         Urn: { jwt: 'mypal2' },
@@ -293,9 +338,11 @@ describe('when using array elements', () => {
   });
 
   it('should Allow when multiple policies in place', async () => {
-    const cp = compilePolicies([{
-      Statement: [apolicy1, apolicy2],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [apolicy1, apolicy2],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: {
         Urn: { role: 'myrole1' },
@@ -307,18 +354,22 @@ describe('when using array elements', () => {
   });
 
   it('should Deny when one rule Deny and others Allow', async () => {
-    const cp = compilePolicies([{
-      Statement: [
-        apolicy1, apolicy2, {
-          Principal: {
-            role: 'myrole1',
+    const cp = compilePolicies([
+      {
+        Statement: [
+          apolicy1,
+          apolicy2,
+          {
+            Principal: {
+              role: 'myrole1',
+            },
+            Effect: 'Deny',
+            Action: 'myaction2',
+            Resource: 'myresource2',
           },
-          Effect: 'Deny',
-          Action: 'myaction2',
-          Resource: 'myresource2',
-        },
-      ],
-    }]);
+        ],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: {
         Urn: { role: 'myrole1' },
@@ -328,15 +379,15 @@ describe('when using array elements', () => {
     });
     expect(allowed).toBeFalsy();
   });
-
 });
 
 describe('when using simple elements', () => {
-
   it('should Deny when no resource match', async () => {
-    const cp = compilePolicies([{
-      Statement: [spolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal',
       Action: 'mywrite',
@@ -346,9 +397,11 @@ describe('when using simple elements', () => {
   });
 
   it('should Deny when no policies', async () => {
-    const cp = compilePolicies([{
-      Statement: [],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal',
       Action: 'mywrite',
@@ -358,9 +411,11 @@ describe('when using simple elements', () => {
   });
 
   it('should Allow when policy matches context', async () => {
-    const cp = compilePolicies([{
-      Statement: [spolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ]);
     const allowed = cp.evaluate({
       Principal: 'mypal',
       Action: 'mywrite',
@@ -370,9 +425,11 @@ describe('when using simple elements', () => {
   });
 
   it('should fail if context without Principal', async () => {
-    const cp = compilePolicies([{
-      Statement: [spolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -384,9 +441,11 @@ describe('when using simple elements', () => {
   });
 
   it('should fail if context without Action', async () => {
-    const cp = compilePolicies([{
-      Statement: [spolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -398,9 +457,11 @@ describe('when using simple elements', () => {
   });
 
   it('should fail if context without Resource', async () => {
-    const cp = compilePolicies([{
-      Statement: [spolicy1],
-    }]);
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ]);
 
     expect(() => {
       cp.evaluate({
@@ -410,5 +471,4 @@ describe('when using simple elements', () => {
       });
     }).toThrow();
   });
-
 });

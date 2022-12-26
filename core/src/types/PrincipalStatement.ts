@@ -3,9 +3,8 @@
  */
 
 export type PrincipalStatement = {
-    Id?: string,
-    Resource: string[],
-    Action: string[],
-    Effect: string
-  };
-  
+  Id?: string;
+  Resource: string[];
+  Action: string[];
+  Effect: string;
+};

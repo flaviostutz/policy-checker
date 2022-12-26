@@ -3,7 +3,6 @@ import { PrincipalStatement } from './types/PrincipalStatement';
 import { Result } from './types/Result';
 
 const evaluate = (context: Context, statements: Map<string, PrincipalStatement[]>): boolean => {
-
   const { ctxAction, ctxResource } = getContextElements(context);
 
   const principal = getPrincipal(context);
@@ -42,7 +41,7 @@ const evaluate = (context: Context, statements: Map<string, PrincipalStatement[]
   return allowed;
 };
 
-const checkAllowed = (ctxResource:string, ctxAction:string, pstt: PrincipalStatement): Result => {
+const checkAllowed = (ctxResource: string, ctxAction: string, pstt: PrincipalStatement): Result => {
   let allowed = Result.NONE;
 
   for (let i = 0; i < pstt.Resource.length; i += 1) {
@@ -64,13 +63,13 @@ const checkAllowed = (ctxResource:string, ctxAction:string, pstt: PrincipalState
   return allowed;
 };
 
-const getContextElements = (context:Context):{ctxAction:string, ctxResource:string} => {
+const getContextElements = (context: Context): { ctxAction: string; ctxResource: string } => {
   // validate Action
   if (typeof context.Action !== 'string' || !context.Action) {
     throw new Error("'Action' must be a non-empty string");
   }
   if (context.Action.includes('*')) {
-    throw new Error('\'Action\' context cannot contain \'*\'');
+    throw new Error("'Action' context cannot contain '*'");
   }
 
   // validate Resource
@@ -85,16 +84,16 @@ const getContextElements = (context:Context):{ctxAction:string, ctxResource:stri
   }
 
   if (!ctxResource) {
-    throw new Error('\'Resource\' context must be non-empty');
+    throw new Error("'Resource' context must be non-empty");
   }
   if (ctxResource.includes('*')) {
-    throw new Error('\'Resource\' context cannot contain \'*\'');
+    throw new Error("'Resource' context cannot contain '*'");
   }
 
   return { ctxAction: context.Action, ctxResource };
 };
 
-const getPrincipal = (context:Context):string => {
+const getPrincipal = (context: Context): string => {
   // validate Principal
   let principal: string = '';
   if (!context.Principal) {
@@ -124,7 +123,7 @@ const getPrincipal = (context:Context):string => {
     throw new Error('Couldnt get Principal from context');
   }
   if (principal !== '*' && principal.includes('*')) {
-    throw new Error('\'Principal\' cannot contain wildcards');
+    throw new Error("'Principal' cannot contain wildcards");
   }
   return principal;
 };

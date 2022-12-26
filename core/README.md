@@ -10,73 +10,72 @@ This is an authorization evaluator library based on the AWS IAM policy style.
 import { compilePolicies } from '@policyval/core';
 
 const pol1 = {
-    Id: "General access policy",
-    Statement: [
-        {
-            Effect: 'Allow',
-            Principal: '*',
-            Action: 'todo:view',
-            Resource: 'todo/*',
-            Condition: {
-                'StringEquals': { 
-                    'int:ResourceTag/viewer': [ 'public', 'anyone' ],
-                    'int:PrincipalTag/plan': 'basic-pro'
-                }
-            }
+  Id: 'General access policy',
+  Statement: [
+    {
+      Effect: 'Allow',
+      Principal: '*',
+      Action: 'todo:view',
+      Resource: 'todo/*',
+      Condition: {
+        StringEquals: {
+          'int:ResourceTag/viewer': ['public', 'anyone'],
+          'int:PrincipalTag/plan': 'basic-pro',
         },
-        {
-            Effect: 'Allow',
-            Principal: '*',
-            Action: 'todo:*',
-            Resource: 'todo/*',
-            Condition: {
-                'StringEquals': { 
-                    'int:ResourceTag/owner': 'int:PrincipalTag/userid',
-                }
-            }
-        }
-    ]
-}
+      },
+    },
+    {
+      Effect: 'Allow',
+      Principal: '*',
+      Action: 'todo:*',
+      Resource: 'todo/*',
+      Condition: {
+        StringEquals: {
+          'int:ResourceTag/owner': 'int:PrincipalTag/userid',
+        },
+      },
+    },
+  ],
+};
 
 const pol2 = {
-    Id: "Specific items policy",
-    Statement: [
-        {
-            Effect: 'Allow',
-            Principal: { 'jwt': [ 'flaviostutz' ] },
-            Action: [ 'todo:update', 'todo:delete' ],
-            Resource: [ 'todo/abc123', 'todo/xyz123' ],
-            Condition: {
-                'DateGreaterThan': { 'int:CurrentTime': '2020-04-01T00:00:00Z' },
-                'DateLessThan': { 'int:CurrentTime': '2020-06-30T23:59:59Z' }
-            }
-        }
-    ]
-}
+  Id: 'Specific items policy',
+  Statement: [
+    {
+      Effect: 'Allow',
+      Principal: { jwt: ['flaviostutz'] },
+      Action: ['todo:update', 'todo:delete'],
+      Resource: ['todo/abc123', 'todo/xyz123'],
+      Condition: {
+        DateGreaterThan: { 'int:CurrentTime': '2020-04-01T00:00:00Z' },
+        DateLessThan: { 'int:CurrentTime': '2020-06-30T23:59:59Z' },
+      },
+    },
+  ],
+};
 
 const cpolicyval = compilePolicies([pol1, pol2]);
 
 //returns false because we are in 2022 and the policy that would give this access is expired
 const allowed1 = cpolicyval.evaluate({
-    Principal: { jwt: 'flaviostutz' },
-    Action: 'todo:update',
-    Resource: { Urn: 'todo:abc123' }
+  Principal: { jwt: 'flaviostutz' },
+  Action: 'todo:update',
+  Resource: { Urn: 'todo:abc123' },
 });
 
 //returns true because richard has plan 'basic-pro'
 const allowed2 = cpolicyval.evaluate({
-    Principal: { jwt: 'richard', Tags: [ { plan: 'basic-pro' } ] },
-    Action: 'todo:view',
-    Resource: 'todo:axy576'
+  Principal: { jwt: 'richard', Tags: [{ plan: 'basic-pro' }] },
+  Action: 'todo:view',
+  Resource: 'todo:axy576',
 });
 
 //returns true because charles is the 'owner' of the resource
 const allowed3 = cpolicyval.evaluate({
-    Principal: { jwt: 'charles', Tags: { userid: 'charles' } },
-    Action: 'todo:delete',
-    Resource: { Urn: 'todo:axy123', Tags: { owner: 'charles' } }
+  Principal: { jwt: 'charles', Tags: { userid: 'charles' } },
+  Action: 'todo:delete',
+  Resource: { Urn: 'todo:axy123', Tags: { owner: 'charles' } },
 });
-
 ```
 
 ## Reference
@@ -92,16 +91,16 @@ Rule evaluation:
 
 ```ts
 const policy = {
-    Id: "Specific items policy",
-    Statement: [
-        {
-            Effect: 'Allow',
-            Principal: { jwt: [ 'flaviostutz' ] },
-            Action: [ 'todo:update', 'todo:delete' ],
-            Resource: [ 'todo/abc123', 'todo/xyz123' ]
-        }
-    ]
-}
+  Id: 'Specific items policy',
+  Statement: [
+    {
+      Effect: 'Allow',
+      Principal: { jwt: ['flaviostutz'] },
+      Action: ['todo:update', 'todo:delete'],
+      Resource: ['todo/abc123', 'todo/xyz123'],
+    },
+  ],
+};
 ```
 
 ### Functions
@@ -116,7 +115,7 @@ const policy = {
 
   - Evaluates the context with Principal, Resource and Action against the set of policies set on compilePolicies and return a boolean, indicating "allowed" or "disallowed".
 
-  - *input* is:
+  - _input_ is:
 
 ```ts
 {
@@ -126,6 +125,4 @@ const policy = {
 }
 ```
 
-  - Arrays are not allowed here because you are specifying the specific context for authorization.
-
-  
+- Arrays are not allowed here because you are specifying the specific context for authorization.
