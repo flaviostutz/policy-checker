@@ -23,25 +23,24 @@ const IpAddress = {
     const ipMask = value.substring(pos + 1);
     try {
       const ipMaskNbr = parseInt(ipMask, 10);
-    // eslint-disable-next-line no-bitwise
+      // eslint-disable-next-line no-bitwise
       return (ipNumber(varValue) & ipMaskNumber(ipMaskNbr)) === ipNumber(ipBase);
     } catch (err) {
       return false;
     }
   },
 };
-const ipNumber = (ipAddress:string):number => {
+const ipNumber = (ipAddress: string): number => {
   const ip = /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/.exec(ipAddress);
   if (ip) {
     // eslint-disable-next-line no-bitwise
-    return (Number(ip[1]) << 24) + (Number(ip[2]) << 16) + (Number(ip[3]) << 8) + (Number(ip[4]));
+    return (Number(ip[1]) << 24) + (Number(ip[2]) << 16) + (Number(ip[3]) << 8) + Number(ip[4]);
   }
   throw new Error('Unknown ip format');
 };
-const ipMaskNumber = (maskSize:number):number => {
+const ipMaskNumber = (maskSize: number): number => {
   // eslint-disable-next-line no-bitwise
   return -1 << (32 - maskSize);
 };
-
 
 export { Bool, IpAddress };

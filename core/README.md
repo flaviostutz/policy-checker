@@ -113,7 +113,7 @@ Resource variable substitutions is supported also, for example
 
 ```ts
 {
-  Resource: "tasks/${ctx:PrincipalTag/area, 'all'}/*"
+  Resource: "tasks/${ctx:PrincipalTag/area, 'all'}/*";
 }
 ```
 

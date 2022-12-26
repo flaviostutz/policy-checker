@@ -139,9 +139,7 @@ const getPrincipal = (context: RequestContext): string => {
 };
 
 const matches = (value: string, expression: string): boolean => {
-  const regex = expression.replace('.', '\\.')
-                          .replace('*', '.*')
-                          .replace('?', '.{0,1}');
+  const regex = expression.replace('.', '\\.').replace('*', '.*').replace('?', '.{0,1}');
   const re = new RegExp(regex);
   return re.test(value);
 };

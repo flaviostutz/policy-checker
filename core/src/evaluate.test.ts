@@ -8,18 +8,20 @@ describe('when using Condition elements', () => {
   it('should allow if Null condition matches', async () => {
     const cp = compilePolicies([
       {
-        Statement: [{
-          Action: 'myaction1',
-          Effect: 'Allow',
-          Principal: 'mypal1',
-          Resource: 'myresource1',
-          Condition: {
-            Null: {
-              'ctx:test1': 'true',
-              'ctx:test2': 'false',
+        Statement: [
+          {
+            Action: 'myaction1',
+            Effect: 'Allow',
+            Principal: 'mypal1',
+            Resource: 'myresource1',
+            Condition: {
+              Null: {
+                'ctx:test1': 'true',
+                'ctx:test2': 'false',
+              },
             },
           },
-        }],
+        ],
       },
     ]);
 

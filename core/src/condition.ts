@@ -11,6 +11,23 @@ import {
   StringNotEqualsIgnoreCase,
   StringNotLike,
 } from './conditions/string';
+import {
+  DateEquals,
+  DateGreaterThan,
+  DateGreaterThanEquals,
+  DateLessThan,
+  DateLessThanEquals,
+  DateNotEquals,
+} from './conditions/date';
+import {
+  NumericEquals,
+  NumericGreaterThan,
+  NumericGreaterThanEquals,
+  NumericLessThan,
+  NumericLessThanEquals,
+  NumericNotEquals,
+} from './conditions/number';
+import { Bool, IpAddress } from './conditions/misc';
 import { RequestContext } from './types/RequestContext';
 import { ConditionInput } from './types/ConditionInput';
 import { resolveVar } from './conditions/resolver';
@@ -24,6 +41,23 @@ evaluators.set(StringEqualsIgnoreCase.name(), StringEqualsIgnoreCase);
 evaluators.set(StringNotEqualsIgnoreCase.name(), StringNotEqualsIgnoreCase);
 evaluators.set(StringLike.name(), StringLike);
 evaluators.set(StringNotLike.name(), StringNotLike);
+
+evaluators.set(DateEquals.name(), DateEquals);
+evaluators.set(DateGreaterThan.name(), DateGreaterThan);
+evaluators.set(DateGreaterThanEquals.name(), DateGreaterThanEquals);
+evaluators.set(DateLessThan.name(), DateLessThan);
+evaluators.set(DateLessThanEquals.name(), DateLessThanEquals);
+evaluators.set(DateNotEquals.name(), DateNotEquals);
+
+evaluators.set(NumericEquals.name(), NumericEquals);
+evaluators.set(NumericGreaterThan.name(), NumericGreaterThan);
+evaluators.set(NumericGreaterThanEquals.name(), NumericGreaterThanEquals);
+evaluators.set(NumericLessThan.name(), NumericLessThan);
+evaluators.set(NumericLessThanEquals.name(), NumericLessThanEquals);
+evaluators.set(NumericNotEquals.name(), NumericNotEquals);
+
+evaluators.set(Bool.name(), Bool);
+evaluators.set(IpAddress.name(), IpAddress);
 
 // eslint-disable-next-line complexity
 const evaluateConditions = (
@@ -101,7 +135,7 @@ const evaluateConditions = (
   return true;
 };
 
-const evaluateNullOperator = (context:RequestContext, input:ConditionInput):boolean => {
+const evaluateNullOperator = (context: RequestContext, input: ConditionInput): boolean => {
   for (const key in input) {
     if (!Object.prototype.hasOwnProperty.call(input, key)) {
       continue;
@@ -110,8 +144,10 @@ const evaluateNullOperator = (context:RequestContext, input:ConditionInput):bool
     const value = input[key];
     let ok = false;
     if (varValue === null) {
+      // prettier-ignore
       ok = (value === 'true');
     } else {
+      // prettier-ignore
       ok = (value === 'false');
     }
     if (!ok) {

@@ -23,7 +23,6 @@ describe('when using Bool', () => {
   });
 });
 
-
 describe('when using IpAddress', () => {
   it('should match if ip matches mask', async () => {
     const result = IpAddress.evaluate('200.200.200.100', '200.200.200.0/24');
@@ -46,4 +45,3 @@ describe('when using IpAddress', () => {
     expect(result).toBeFalsy();
   });
 });
-
