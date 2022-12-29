@@ -24,8 +24,8 @@ const pol1 = {
             Resource: 'todo:*',
             Condition: {
                 'StringEquals': { 
-                    'int:ResourceTag/viewer': [ 'admin', 'anyone' ],
-                    'int:PrincipalTag/plan': 'basic-pro'
+                    'ctx:ResourceTag/viewer': [ 'admin', 'anyone' ],
+                    'ctx:PrincipalTag/plan': 'basic-pro'
                 }
             }
         }
