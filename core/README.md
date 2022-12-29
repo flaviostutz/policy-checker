@@ -19,8 +19,8 @@ const pol1 = {
       Resource: 'todo/*',
       Condition: {
         StringEquals: {
-          'int:ResourceTag/viewer': ['public', 'anyone'],
-          'int:PrincipalTag/plan': 'basic-pro',
+          'ctx:ResourceTag/viewer': ['public', 'anyone'],
+          'ctx:PrincipalTag/plan': 'basic-pro',
         },
       },
     },
@@ -31,7 +31,7 @@ const pol1 = {
       Resource: 'todo/*',
       Condition: {
         StringEquals: {
-          'int:ResourceTag/owner': 'int:PrincipalTag/userid',
+          'ctx:ResourceTag/owner': 'ctx:PrincipalTag/userid',
         },
       },
     },
@@ -47,8 +47,8 @@ const pol2 = {
       Action: ['todo:update', 'todo:delete'],
       Resource: ['todo/abc123', 'todo/xyz123'],
       Condition: {
-        DateGreaterThan: { 'int:CurrentTime': '2020-04-01T00:00:00Z' },
-        DateLessThan: { 'int:CurrentTime': '2020-06-30T23:59:59Z' },
+        DateGreaterThan: { 'ctx:CurrentTime': '2020-04-01T00:00:00Z' },
+        DateLessThan: { 'ctx:CurrentTime': '2020-06-30T23:59:59Z' },
       },
     },
   ],

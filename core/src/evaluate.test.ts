@@ -163,6 +163,36 @@ describe('when using Condition elements', () => {
     });
     expect(allowed2).toBeFalsy();
   });
+  it('should allow if string condition with var on key and value equals', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [{
+          Action: 'myaction1',
+          Effect: 'Allow',
+          Principal: '*',
+          Resource: 'myresource1',
+          Condition: {
+            StringEquals: {
+              // eslint-disable-next-line no-template-curly-in-string
+              'ctx:test1': '${ctx:test2}',
+            },
+          },
+        }],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: {
+        Urn: 'mypal1',
+      },
+      Action: 'myaction1',
+      Resource: 'myresource1',
+      Vars: {
+        test1: 'value1',
+        test2: 'value1',
+      },
+    });
+    expect(allowed).toBeTruthy();
+  });
   it('should allow if string conditions matches', async () => {
     const cp = compilePolicies([
       {

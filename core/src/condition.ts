@@ -97,16 +97,19 @@ const evaluateConditions = (
       }
 
       const value = input[key];
+      const varKey = resolveVar(context, key);
 
       if (Array.isArray(value)) {
         let okOr = false;
         for (let i = 0; i < value.length; i += 1) {
-          const varValue = resolveVar(context, key);
+
+          const varValue = resolveVarValue(context, value[i]);
+
           let ok = false;
-          if (varValue === null) {
+          if (varKey === null) {
             ok = ifExists;
           } else {
-            ok = evaluator.evaluate(varValue, value[i]);
+            ok = evaluator.evaluate(varKey, varValue);
           }
           if (ok) {
             okOr = true;
@@ -119,12 +122,14 @@ const evaluateConditions = (
         if (typeof value !== 'string') {
           return false;
         }
-        const varValue = resolveVar(context, key);
+
+        const varValue = resolveVarValue(context, value);
+
         let ok = false;
-        if (varValue === null) {
+        if (varKey === null) {
           ok = ifExists;
         } else {
-          ok = evaluator.evaluate(varValue, value);
+          ok = evaluator.evaluate(varKey, varValue);
         }
         if (!ok) {
           return false;
@@ -166,6 +171,17 @@ const conditionExists = (name: string): boolean => {
     cname = name.substring(0, name.indexOf('IfExists'));
   }
   return evaluators.has(cname);
+};
+
+const resolveVarValue = (context:RequestContext, valueContents:string):string => {
+  let result = null;
+  if (valueContents.startsWith('${') && valueContents.endsWith('}')) {
+    result = resolveVar(context, valueContents.substring(2, valueContents.length - 1));
+  }
+  if (result === null) {
+    return valueContents;
+  }
+  return result;
 };
 
 export { conditionExists, evaluateConditions };

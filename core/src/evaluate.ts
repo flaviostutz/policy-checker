@@ -39,7 +39,6 @@ const evaluate = (
         allowed = true;
       }
     }
-    allowed = true;
   }
 
   return allowed;
