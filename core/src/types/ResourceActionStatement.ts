@@ -4,7 +4,7 @@
 
 import { ConditionInput } from './ConditionInput';
 
-export type PrincipalStatement = {
+export type ResourceActionStatement = {
   Id?: string;
   Resource: string[];
   Action: string[];

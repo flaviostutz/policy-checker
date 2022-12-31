@@ -6,6 +6,117 @@ import { spolicy1 } from './__mocks__/simplePolicies';
 import { vpolicy1 } from './__mocks__/varPolicies';
 import { wpolicy1, wpolicy2, wpolicy3 } from './__mocks__/wildcardPolicies';
 
+describe('when using permission boundaries', () => {
+  it('should deny if boundaries deny', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ], [
+      {
+        Statement: [{
+          Action: '*',
+          Effect: 'Deny',
+          Resource: '*',
+        }],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: 'mypal',
+      Action: 'mywrite',
+      Resource: 'myresource',
+    });
+    expect(allowed).toBeFalsy();
+  });
+  it('should deny if boundaries doesnt explicitly allow', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ], [
+      {
+        Statement: [{
+          Action: '*',
+          Effect: 'Allow',
+          Resource: 'anotherresource',
+        }],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: 'mypal',
+      Action: 'mywrite',
+      Resource: 'myresource',
+    });
+    expect(allowed).toBeFalsy();
+  });
+  it('should deny if boundaries var doesnt match', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ], [
+      {
+        Statement: [{
+          Action: 'mywrite',
+          Effect: 'Allow',
+          Resource: 'myresource',
+          Condition: {
+            // eslint-disable-next-line no-template-curly-in-string
+            StringEquals: { 'ctx:ResourceTag/tag1': '${ctx:tag2}' },
+          },
+        }],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: 'mypal',
+      Action: 'mywrite',
+      Resource: {
+        Urn: 'myresource',
+        Tags: {
+          tag1: 'content1',
+        },
+      },
+      Vars: {
+        tag2: 'contentANOTHER',
+      },
+    });
+    expect(allowed).toBeFalsy();
+  });
+  it('should allow if boundaries vars matches', async () => {
+    const cp = compilePolicies([
+      {
+        Statement: [spolicy1],
+      },
+    ], [
+      {
+        Statement: [{
+          Action: 'mywrite',
+          Effect: 'Allow',
+          Resource: 'myresource',
+          Condition: {
+            // eslint-disable-next-line no-template-curly-in-string
+            StringEquals: { 'ctx:ResourceTag/tag1': '${ctx:tag2}' },
+          },
+        }],
+      },
+    ]);
+    const allowed = cp.evaluate({
+      Principal: 'mypal',
+      Action: 'mywrite',
+      Resource: {
+        Urn: 'myresource',
+        Tags: {
+          tag1: 'content1',
+        },
+      },
+      Vars: {
+        tag2: 'content1',
+      },
+    });
+    expect(allowed).toBeTruthy();
+  });
+});
+
 describe('when using var replacement', () => {
   it('should match replaced element', async () => {
     // eslint-disable-next-line no-template-curly-in-string

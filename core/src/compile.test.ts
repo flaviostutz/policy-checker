@@ -4,6 +4,56 @@ import { cstringpolicy1 } from './__mocks__/conditionPolicies';
 import { spolicy1, spolicy2 } from './__mocks__/simplePolicies';
 import { wpolicy1 } from './__mocks__/wildcardPolicies';
 
+describe('when using permission boundaries', () => {
+  it('should compile if boundaries ok', async () => {
+    compilePolicies([
+      {
+        Statement: [cstringpolicy1],
+      },
+    ], [{
+      Statement: [
+        {
+          Action: '*',
+          Effect: 'Allow',
+          Resource: '*',
+        },
+      ],
+    }]);
+  });
+  it('should fail if boundaries not ok', async () => {
+    expect(() => {
+      compilePolicies([
+        {
+          Statement: [cstringpolicy1],
+        },
+      ], [{
+        Statement: [
+          {
+            Principal: '*',
+            Action: '*',
+            Effect: 'Allow',
+            Resource: '*',
+          },
+        ],
+      }]);
+    }).toThrow();
+    expect(() => {
+      compilePolicies([
+        {
+          Statement: [cstringpolicy1],
+        },
+      ], [{
+        Statement: [
+          {
+            Action: '*',
+            Effect: 'Allow',
+          },
+        ],
+      }]);
+    }).toThrow();
+  });
+});
+
 describe('when using condition element', () => {
   it('should compile if condition well formed', async () => {
     compilePolicies([

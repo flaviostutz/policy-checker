@@ -2,7 +2,7 @@ import { evaluate } from './evaluate';
 import { RequestContext } from './types/RequestContext';
 import { PolicyDocument } from './types/PolicyDocument';
 import { PolicyEvaluator } from './types/PolicyEvaluator';
-import { PrincipalStatement } from './types/PrincipalStatement';
+import { ResourceActionStatement } from './types/ResourceActionStatement';
 import { Statement } from './types/Statement';
 import { conditionExists } from './condition';
 
@@ -10,10 +10,24 @@ import { conditionExists } from './condition';
  * Compile policy documents and prepare for evaluation
  * @param policies Collection of policy documents
  */
-const compilePolicies = (policies: PolicyDocument[]): PolicyEvaluator => {
+const compilePolicies = (policies: PolicyDocument[], permissionBoundaries?: PolicyDocument[]): PolicyEvaluator => {
   // index map by each Principal (flat)
-  const principalStatements = new Map<string, PrincipalStatement[]>();
+  const principalStatements = new Map<string, ResourceActionStatement[]>();
 
+  // compile boundaries
+  const boundaries:ResourceActionStatement[] = [];
+  if (permissionBoundaries) {
+    permissionBoundaries.forEach((poldoc) => {
+      poldoc.Statement.forEach((statement) => {
+        if (statement.Principal) {
+          throw new Error('Boundary permissions shouldn\'t have Principals defined');
+        }
+        boundaries.push(resourceActionStatement(statement));
+      });
+    });
+  }
+
+  // compile policies
   policies.forEach((poldoc) => {
     poldoc.Statement.forEach((statement) => {
       const principal = statement.Principal;
@@ -67,13 +81,13 @@ const compilePolicies = (policies: PolicyDocument[]): PolicyEvaluator => {
 
   return {
     evaluate: (context: RequestContext): boolean => {
-      return evaluate(context, principalStatements);
+      return evaluate(context, principalStatements, boundaries);
     },
   };
 };
 
 const addPrincipalStatement = (
-  principalStatements: Map<string, PrincipalStatement[]>,
+  principalStatements: Map<string, ResourceActionStatement[]>,
   principal: any,
   statement: Statement,
 ): void => {
@@ -85,11 +99,11 @@ const addPrincipalStatement = (
   if (!pss) {
     pss = [];
   }
-  pss.push(principalStatement(statement));
+  pss.push(resourceActionStatement(statement));
   principalStatements.set(princ, pss);
 };
 
-const principalStatement = (stt: Statement): PrincipalStatement => {
+const resourceActionStatement = (stt: Statement): ResourceActionStatement => {
   validateNonEmpty(stt.Action, 'Action');
   validateNonEmpty(stt.Resource, 'Resource');
 
@@ -109,14 +123,14 @@ const principalStatement = (stt: Statement): PrincipalStatement => {
     action = stt.Action;
   }
 
-  let resource = [];
+  let resource:string[] | string = [];
   if (typeof stt.Resource === 'string') {
     resource.push(stt.Resource);
-  } else {
+  } else if (stt.Resource) {
     resource = stt.Resource;
   }
 
-  const pss: PrincipalStatement = {
+  const pss: ResourceActionStatement = {
     Id: stt.Id,
     Effect: stt.Effect,
     Action: action,

@@ -80,15 +80,6 @@ const allowed3 = cpolicyval.evaluate({
 
 ## Reference
 
-### Rule evaluation
-
-- Policies related to principal, action and resource are selected
-- Each policy is evaluated
-  - variables are resolved
-  - conditions are evaluated
-- If no policy matches the evaluation, Deny takes effect
-- If multiple rules have conflicting Allow and Deny effects as its result, Deny is returned
-
 ```ts
 const policy = {
   Id: 'Specific items policy',
@@ -102,6 +93,20 @@ const policy = {
   ],
 };
 ```
+
+### Rule evaluation
+
+- Policies related to principal, action and resource are selected
+- Each policy is evaluated
+  - variables are resolved
+  - conditions are evaluated
+- If no policy matches the evaluation, Deny takes effect
+- If multiple rules have conflicting Allow and Deny effects as its result, Deny is returned
+- If permission boundaries exist, it is evaluated and only if both boundaries and policies agree the evaluation will return ALLOW.
+
+### Permission Boundaries
+
+They doesn't add permissions by itself, but are checked in parallel to the policies and only if both agree permission will be ALLOWED. Normally the boundaries are course grained and policies fine grained.
 
 ### Conditions
 
@@ -119,11 +124,12 @@ Resource variable substitutions is supported also, for example
 
 ### Functions
 
-- **core.compilePolicies(policies[])**
+- **core.compilePolicies(policies[], boundaries[])**
 
-  - Returns a evaluator for a set of policy documents
+  - Returns a evaluator for a set of policy documents along with permission boundaries
   - In general, policy document follows general guidelines from https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements.html, excluding specific AWS elements
   - The elements supported are: Id, Statement, Effect, Principal, Action and Resource (Condition in the future)
+  - If boundaries exist, they will be evaluated and may DENY the evaluation even if the policy allow it. Both must ALLOW (but boundaries doesn't add permissions by itself).
 
 - **evaluator.evaluate(input)**
 

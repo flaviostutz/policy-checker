@@ -1,15 +1,25 @@
 import { RequestContext } from './types/RequestContext';
-import { PrincipalStatement } from './types/PrincipalStatement';
+import { ResourceActionStatement } from './types/ResourceActionStatement';
 import { Result } from './types/Result';
 import { evaluateConditions } from './condition';
 import { resolveVar } from './conditions/resolver';
 
 const evaluate = (
   context: RequestContext,
-  statements: Map<string, PrincipalStatement[]>,
+  statements: Map<string, ResourceActionStatement[]>,
+  boundaries?: ResourceActionStatement[],
 ): boolean => {
   const { ctxAction, ctxResource } = getContextElements(context);
   const principal = getPrincipal(context);
+
+  if (boundaries) {
+    for (let i = 0; i < boundaries.length; i += 1) {
+      const effectB = checkEffect(context, ctxResource, ctxAction, boundaries[i]);
+      if (effectB !== Result.ALLOW) {
+        return false;
+      }
+    }
+  }
 
   let allowed = false;
 
@@ -48,7 +58,7 @@ const checkEffect = (
   context: RequestContext,
   ctxResource: string,
   ctxAction: string,
-  pstt: PrincipalStatement,
+  pstt: ResourceActionStatement,
 ): Result => {
   let allowed = Result.NONE;
 
