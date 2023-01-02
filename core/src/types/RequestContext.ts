@@ -4,7 +4,7 @@
 export type RequestContext = {
   Principal:
     | {
-        Urn: Record<string, string[] | string> | string;
+        Urn: Record<string, string> | string;
         Tags?: Record<string, string>;
       }
     | string;

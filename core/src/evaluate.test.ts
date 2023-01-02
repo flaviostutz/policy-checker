@@ -8,19 +8,24 @@ import { wpolicy1, wpolicy2, wpolicy3 } from './__mocks__/wildcardPolicies';
 
 describe('when using permission boundaries', () => {
   it('should deny if boundaries deny', async () => {
-    const cp = compilePolicies([
-      {
-        Statement: [spolicy1],
-      },
-    ], [
-      {
-        Statement: [{
-          Action: '*',
-          Effect: 'Deny',
-          Resource: '*',
-        }],
-      },
-    ]);
+    const cp = compilePolicies(
+      [
+        {
+          Statement: [spolicy1],
+        },
+      ],
+      [
+        {
+          Statement: [
+            {
+              Action: '*',
+              Effect: 'Deny',
+              Resource: '*',
+            },
+          ],
+        },
+      ],
+    );
     const allowed = cp.evaluate({
       Principal: 'mypal',
       Action: 'mywrite',
@@ -29,19 +34,24 @@ describe('when using permission boundaries', () => {
     expect(allowed).toBeFalsy();
   });
   it('should deny if boundaries doesnt explicitly allow', async () => {
-    const cp = compilePolicies([
-      {
-        Statement: [spolicy1],
-      },
-    ], [
-      {
-        Statement: [{
-          Action: '*',
-          Effect: 'Allow',
-          Resource: 'anotherresource',
-        }],
-      },
-    ]);
+    const cp = compilePolicies(
+      [
+        {
+          Statement: [spolicy1],
+        },
+      ],
+      [
+        {
+          Statement: [
+            {
+              Action: '*',
+              Effect: 'Allow',
+              Resource: 'anotherresource',
+            },
+          ],
+        },
+      ],
+    );
     const allowed = cp.evaluate({
       Principal: 'mypal',
       Action: 'mywrite',
@@ -50,23 +60,28 @@ describe('when using permission boundaries', () => {
     expect(allowed).toBeFalsy();
   });
   it('should deny if boundaries var doesnt match', async () => {
-    const cp = compilePolicies([
-      {
-        Statement: [spolicy1],
-      },
-    ], [
-      {
-        Statement: [{
-          Action: 'mywrite',
-          Effect: 'Allow',
-          Resource: 'myresource',
-          Condition: {
-            // eslint-disable-next-line no-template-curly-in-string
-            StringEquals: { 'ctx:ResourceTag/tag1': '${ctx:tag2}' },
-          },
-        }],
-      },
-    ]);
+    const cp = compilePolicies(
+      [
+        {
+          Statement: [spolicy1],
+        },
+      ],
+      [
+        {
+          Statement: [
+            {
+              Action: 'mywrite',
+              Effect: 'Allow',
+              Resource: 'myresource',
+              Condition: {
+                // eslint-disable-next-line no-template-curly-in-string
+                StringEquals: { 'ctx:ResourceTag/tag1': '${ctx:tag2}' },
+              },
+            },
+          ],
+        },
+      ],
+    );
     const allowed = cp.evaluate({
       Principal: 'mypal',
       Action: 'mywrite',
@@ -83,23 +98,28 @@ describe('when using permission boundaries', () => {
     expect(allowed).toBeFalsy();
   });
   it('should allow if boundaries vars matches', async () => {
-    const cp = compilePolicies([
-      {
-        Statement: [spolicy1],
-      },
-    ], [
-      {
-        Statement: [{
-          Action: 'mywrite',
-          Effect: 'Allow',
-          Resource: 'myresource',
-          Condition: {
-            // eslint-disable-next-line no-template-curly-in-string
-            StringEquals: { 'ctx:ResourceTag/tag1': '${ctx:tag2}' },
-          },
-        }],
-      },
-    ]);
+    const cp = compilePolicies(
+      [
+        {
+          Statement: [spolicy1],
+        },
+      ],
+      [
+        {
+          Statement: [
+            {
+              Action: 'mywrite',
+              Effect: 'Allow',
+              Resource: 'myresource',
+              Condition: {
+                // eslint-disable-next-line no-template-curly-in-string
+                StringEquals: { 'ctx:ResourceTag/tag1': '${ctx:tag2}' },
+              },
+            },
+          ],
+        },
+      ],
+    );
     const allowed = cp.evaluate({
       Principal: 'mypal',
       Action: 'mywrite',
@@ -277,18 +297,20 @@ describe('when using Condition elements', () => {
   it('should allow if string condition with var on key and value equals', async () => {
     const cp = compilePolicies([
       {
-        Statement: [{
-          Action: 'myaction1',
-          Effect: 'Allow',
-          Principal: '*',
-          Resource: 'myresource1',
-          Condition: {
-            StringEquals: {
-              // eslint-disable-next-line no-template-curly-in-string
-              'ctx:test1': '${ctx:test2}',
+        Statement: [
+          {
+            Action: 'myaction1',
+            Effect: 'Allow',
+            Principal: '*',
+            Resource: 'myresource1',
+            Condition: {
+              StringEquals: {
+                // eslint-disable-next-line no-template-curly-in-string
+                'ctx:test1': '${ctx:test2}',
+              },
             },
           },
-        }],
+        ],
       },
     ]);
     const allowed = cp.evaluate({

@@ -10,17 +10,20 @@ import { conditionExists } from './condition';
  * Compile policy documents and prepare for evaluation
  * @param policies Collection of policy documents
  */
-const compilePolicies = (policies: PolicyDocument[], permissionBoundaries?: PolicyDocument[]): PolicyEvaluator => {
+const compilePolicies = (
+  policies: PolicyDocument[],
+  permissionBoundaries?: PolicyDocument[],
+): PolicyEvaluator => {
   // index map by each Principal (flat)
   const principalStatements = new Map<string, ResourceActionStatement[]>();
 
   // compile boundaries
-  const boundaries:ResourceActionStatement[] = [];
+  const boundaries: ResourceActionStatement[] = [];
   if (permissionBoundaries) {
     permissionBoundaries.forEach((poldoc) => {
       poldoc.Statement.forEach((statement) => {
         if (statement.Principal) {
-          throw new Error('Boundary permissions shouldn\'t have Principals defined');
+          throw new Error("Boundary permissions shouldn't have Principals defined");
         }
         boundaries.push(resourceActionStatement(statement));
       });
@@ -103,9 +106,8 @@ const addPrincipalStatement = (
   principalStatements.set(princ, pss);
 };
 
-const resourceActionStatement = (stt: Statement): ResourceActionStatement => {
+const validateActionStatement = (stt: Statement): void => {
   validateNonEmpty(stt.Action, 'Action');
-  validateNonEmpty(stt.Resource, 'Resource');
 
   // Effect attribute
   if (stt.Effect !== 'Allow' && stt.Effect !== 'Deny') {
@@ -114,6 +116,11 @@ const resourceActionStatement = (stt: Statement): ResourceActionStatement => {
 
   // Condition attribute
   validateCondition(stt.Condition);
+};
+
+const resourceActionStatement = (stt: Statement): ResourceActionStatement => {
+  validateActionStatement(stt);
+  validateNonEmpty(stt.Resource, 'Resource');
 
   // normalize to always be array
   let action = [];
@@ -123,7 +130,7 @@ const resourceActionStatement = (stt: Statement): ResourceActionStatement => {
     action = stt.Action;
   }
 
-  let resource:string[] | string = [];
+  let resource: string[] | string = [];
   if (typeof stt.Resource === 'string') {
     resource.push(stt.Resource);
   } else if (stt.Resource) {
@@ -186,4 +193,4 @@ const validateCondition = (condition: any): void => {
   }
 };
 
-export { compilePolicies };
+export { compilePolicies, validateActionStatement, validateNonEmpty };

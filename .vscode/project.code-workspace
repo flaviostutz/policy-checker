@@ -2,6 +2,9 @@
     "folders": [
       {
         "path": "../core"
+      },
+      {
+        "path": "../attacher"
       }
     ],
   }

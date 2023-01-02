@@ -1,0 +1,1 @@
+export { newAttacher } from './attacher';

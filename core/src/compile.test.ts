@@ -6,50 +6,65 @@ import { wpolicy1 } from './__mocks__/wildcardPolicies';
 
 describe('when using permission boundaries', () => {
   it('should compile if boundaries ok', async () => {
-    compilePolicies([
-      {
-        Statement: [cstringpolicy1],
-      },
-    ], [{
-      Statement: [
+    compilePolicies(
+      [
         {
-          Action: '*',
-          Effect: 'Allow',
-          Resource: '*',
+          Statement: [cstringpolicy1],
         },
       ],
-    }]);
+      [
+        {
+          Statement: [
+            {
+              Action: '*',
+              Effect: 'Allow',
+              Resource: '*',
+            },
+          ],
+        },
+      ],
+    );
   });
   it('should fail if boundaries not ok', async () => {
     expect(() => {
-      compilePolicies([
-        {
-          Statement: [cstringpolicy1],
-        },
-      ], [{
-        Statement: [
+      compilePolicies(
+        [
           {
-            Principal: '*',
-            Action: '*',
-            Effect: 'Allow',
-            Resource: '*',
+            Statement: [cstringpolicy1],
           },
         ],
-      }]);
+        [
+          {
+            Statement: [
+              {
+                Principal: '*',
+                Action: '*',
+                Effect: 'Allow',
+                Resource: '*',
+              },
+            ],
+          },
+        ],
+      );
     }).toThrow();
     expect(() => {
-      compilePolicies([
-        {
-          Statement: [cstringpolicy1],
-        },
-      ], [{
-        Statement: [
+      compilePolicies(
+        [
           {
-            Action: '*',
-            Effect: 'Allow',
+            Statement: [cstringpolicy1],
           },
         ],
-      }]);
+        [
+          {
+            Statement: [
+              {
+                Action: '*',
+                Effect: 'Allow',
+              },
+            ],
+          },
+        ],
+      );
     }).toThrow();
   });
 });

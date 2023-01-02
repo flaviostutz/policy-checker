@@ -2,10 +2,11 @@
   "private": true,
   "name": "policyval",
   "workspaces": [
-    "core"
+    "core",
+    "attacher"
   ],
   "packageManager": "yarn@3.2.4",
   "devDependencies": {
-    "nx": "15.0.13"
+    "nx": "15.4.2"
   }
 }

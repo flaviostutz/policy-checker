@@ -102,7 +102,6 @@ const evaluateConditions = (
       if (Array.isArray(value)) {
         let okOr = false;
         for (let i = 0; i < value.length; i += 1) {
-
           const varValue = resolveVarValue(context, value[i]);
 
           let ok = false;
@@ -173,7 +172,7 @@ const conditionExists = (name: string): boolean => {
   return evaluators.has(cname);
 };
 
-const resolveVarValue = (context:RequestContext, valueContents:string):string => {
+const resolveVarValue = (context: RequestContext, valueContents: string): string => {
   let result = null;
   if (valueContents.startsWith('${') && valueContents.endsWith('}')) {
     result = resolveVar(context, valueContents.substring(2, valueContents.length - 1));

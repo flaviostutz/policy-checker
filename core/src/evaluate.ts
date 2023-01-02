@@ -10,7 +10,7 @@ const evaluate = (
   boundaries?: ResourceActionStatement[],
 ): boolean => {
   const { ctxAction, ctxResource } = getContextElements(context);
-  const principal = getPrincipal(context);
+  const principal = getRequestContextPrincipal(context);
 
   if (boundaries) {
     for (let i = 0; i < boundaries.length; i += 1) {
@@ -116,7 +116,7 @@ const getContextElements = (
   return { ctxAction: context.Action, ctxResource };
 };
 
-const getPrincipal = (context: RequestContext): string => {
+const getRequestContextPrincipal = (context: RequestContext): string => {
   // validate Principal
   let principal: string = '';
   if (!context.Principal) {
