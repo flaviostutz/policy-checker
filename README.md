@@ -1,5 +1,8 @@
 # policyval
 
+[![npm](https://img.shields.io/npm/v/@policyval/core)](https://www.npmjs.com/package/@policyval/core)
+<!-- [![npm](https://img.shields.io/npm/dw/@policyval/core)](https://www.npmjs.com/package/@policyval/core) -->
+
 This is an authorization evaluator based on the AWS IAM policy style.
 
 AWS IAM is an amazing tool for authorization but unfortunatelly we cannot use it for custom application level authorizations as it is meant to be used only for protecting AWS resources.
