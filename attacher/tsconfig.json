@@ -14,6 +14,6 @@
     "preserveConstEnums": true,
     "declaration": true
   },
-  "include": ["src/**/*", "../middy/src/types/KeyMapperFunction.ts"],
+  "include": ["src/**/*", ".eslintrc.js", "jest.config.js"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }
