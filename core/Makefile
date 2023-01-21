@@ -9,13 +9,11 @@ build-module: install
 	npx tsc --emitDeclarationOnly --outDir dist
 
 lint:
-	# npx prettier --loglevel warn --check .
 	npx eslint . --ext .ts
 	npx tsc -noEmit --skipLibCheck
 	yarn audit; [[ $? -ge 16 ]] && exit 1 || exit 0
 
 lint-fix:
-	# npx prettier --loglevel warn --write .
 	npx eslint . --ext .ts --fix
 
 test: unit-tests
